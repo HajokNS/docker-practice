@@ -1,6 +1,6 @@
 FROM node:20
 
-WORKDIR /usr/src/app
+WORKDIR /srv/node/app
 
 COPY package*.json ./
 
@@ -8,6 +8,10 @@ RUN npm install
 
 COPY . .
 
+RUN chown -R node /srv/node/app
+
+USER node
+
 EXPOSE 3000
 
-CMD ["node", "app.js"]
+CMD ["node", "server.js"]

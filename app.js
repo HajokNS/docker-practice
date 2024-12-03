@@ -1,12 +1,38 @@
-const express = require('express');
-const app = express();
-const host = '0.0.0.0';
-const port = 3000;
+const Fastify = require("fastify");
 
-app.get('/hello', (req, res) => {
-    res.send('<h1>Hello, world!</h1>');
-});
+const { IS_DEV_ENV } = require("./config");
+const { patchRouting } = require("./routes");
 
-app.listen(port, host, () => {
-  console.log(`Server running at http://localhost:${port}`);
-});
+const bootstrapFastify = () => {
+    const fastify = Fastify({
+        exposeHeadRoutes: false,
+        connectionTimeout: 20000,
+        ignoreTrailingSlash: false,
+        logger: !IS_DEV_ENV || {
+            level: "debug",
+            transport: {
+                target: "@mgcrea/pino-pretty-compact",
+                options: {
+                    colorize: true,
+                    translateTime: "HH:MM:ss Z",
+                    ignore: "pid,hostname",
+                },
+            },
+        },
+        disableRequestLogging: true,
+    });
+
+    patchRouting(fastify);
+
+    if (IS_DEV_ENV) {
+        fastify.register(require("@mgcrea/fastify-request-logger"), {});
+
+        fastify.ready(() => {
+            console.log(`\nAPI Structure\n${fastify.printRoutes()}`);
+        });
+    }
+
+    return fastify;
+};
+
+module.exports = { bootstrapFastify };
