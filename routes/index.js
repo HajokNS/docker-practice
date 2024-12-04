@@ -1,7 +1,8 @@
 const { gamesRouter } = require("./games");
+const { platformsRouter } = require("./platforms");
 
 module.exports.patchRouting = (fastify) => {
-    
+
   fastify.setNotFoundHandler((request, reply) => {
     reply.status(404).send({ error: "Not Found" });
   });
@@ -19,4 +20,5 @@ module.exports.patchRouting = (fastify) => {
   });
 
   fastify.register(gamesRouter);
+  fastify.register(platformsRouter);
 };

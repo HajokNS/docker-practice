@@ -16,7 +16,7 @@ module.exports = {
     handler: async (request, reply) => {
       try {
         const targetId = request.params.id;
-        const game = await gameRepository.read(targetId);
+        const game = await gameRepository.findByPK(targetId);
         return reply.code(200).send(game);
       } catch (error) {
         request.log.error(error);

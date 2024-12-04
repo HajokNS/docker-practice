@@ -1,9 +1,10 @@
 {
-  "name": "docker-nginx-fastify-demo",
+  "name": "docker-practice",
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "db:sync": "prisma db push"
   },
   "keywords": [],
   "author": "",
@@ -11,6 +12,10 @@
   "description": "",
   "dependencies": {
     "dotenv": "^16.4.5",
-    "fastify": "^4.28.1"
+    "fastify": "^4.28.1",
+    "prisma": "^5.20.0",
+    "mongodb": "^6.9.0",
+    "@prisma/adapter-pg": "^5.20.0",
+    "@prisma/client": "^5.20.0"
   }
 }

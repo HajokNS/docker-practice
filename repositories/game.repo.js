@@ -1,60 +1,56 @@
-const { randomUUID } = require("node:crypto");
-
-class GameRepository {
+const {
+    postgresAdapter: { $prisma },
+  } = require("./../adapters/postgres");
+  
+  class GameRepository {
+    #prisma;
+  
     constructor() {
-        this.storage = new Map();
+      this.#prisma = $prisma;
     }
-
+  
     async create(data) {
-        const id = randomUUID();
-
-        const syncedTimestamp = Date.now();
-
-        this.storage.set(id, {
-            id,
-            ...data,
-            createdAt: syncedTimestamp,
-            updatedAt: syncedTimestamp,
-        });
-
-        return this.storage.get(id);
+      return await this.#prisma.game.create({
+        data,
+      });
     }
-
-    async read(id) {
-        if (id && !this.storage.has(id)) {
-            throw new Error("Game not found");
-        }
-
-        return id ? this.storage.get(id) : Array.from(this.storage.values());
+  
+    async findByPK(id) {
+      const game = await this.#prisma.game.findUnique({
+        where: { id },
+      });
+  
+      if (!game) {
+        throw new Error("Game not found");
+      }
+  
+      return game;
     }
-
+  
+    async find({ term, limit, offset, sort }) {
+      const games = await this.#prisma.game.findMany({
+        where: term ? { title: { contains: term, mode: "insensitive" } } : {},
+        skip: offset,
+        take: limit,
+        orderBy: { [sort]: "desc" },
+      });
+  
+      return games;
+    }
+  
     async update(id, data) {
-        if (!this.storage.has(id)) {
-            throw new Error("Game not found");
-        }
-
-        delete data.id;
-
-        this.storage.set(id, {
-            ...this.storage.get(id),
-            ...data,
-            updatedAt: Date.now(),
-        });
-
-        return this.storage.get(id);
+      return await this.#prisma.game.update({
+        where: { id },
+        data,
+      });
     }
-
+  
     async delete(id) {
-        if (!this.storage.has(id)) {
-            throw new Error("Game not found");
-        }
-
-        const game = this.storage.get(id);
-
-        this.storage.delete(id);
-
-        return game;
+      return await this.#prisma.game.delete({
+        where: { id },
+      });
     }
-}
-
-module.exports.gameRepository = new GameRepository();
+  }
+  
+  module.exports.gameRepository = new GameRepository();
+  
